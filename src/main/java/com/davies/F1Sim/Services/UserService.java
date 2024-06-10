@@ -1,8 +1,10 @@
 package com.davies.F1Sim.Services;
 
 import com.davies.F1Sim.DTO.LoginDTO;
+import com.davies.F1Sim.Entities.GoogleUser;
 import com.davies.F1Sim.Entities.User;
 import com.davies.F1Sim.Exceptions.UserExistsException;
+import com.davies.F1Sim.Repos.GoogleUserRepo;
 import com.davies.F1Sim.Repos.UserRepo;
 import org.antlr.v4.runtime.Token;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +46,8 @@ import java.util.Map;
 public class UserService {
     @Autowired
     UserRepo userRepo;
+    @Autowired
+    GoogleUserRepo googleUserRepo;
     @Autowired
     TokenService tokenService;
     @Value("${client-id}")
@@ -117,6 +121,7 @@ public class UserService {
 
     @Value("${client-secret}")
     String clientSecret;
+
     public String getGoogleUserEmail(String code) throws Exception {
         URL uri = new URL("https://oauth2.googleapis.com/token");
         Map<String, String> parameters = new HashMap<>();
@@ -130,44 +135,50 @@ public class UserService {
         parameters.put("grant_type", "authorization_code");
 
         String resultado = doPost(uri, parameters);
-        System.out.println(resultado);
-        Map<String , String> map = new Gson().fromJson(resultado, HashMap.class);
+        System.out.println("Resultado: " + resultado);
+        Map<String, String> map = new Gson().fromJson(resultado, HashMap.class);
         String accessToken = map.get("access_token");
 
         System.out.println("Token: " + accessToken);
 
-        URIBuilder s = new URIBuilder("https://www.googleapis.com/drive/v2/files?access_token=");
-        s.addParameter("access_token", accessToken);
-        s.addParameter("alt", "json");
-        String respuesta = doGet(s.build().toURL());
-        System.out.println(respuesta);
-        Map<String,String> map2 = new Gson().fromJson(respuesta, HashMap.class);
-        return map2.get("display_name");
+        // Reemplazar con el endpoint correcto
+        URL userInfoEndpoint = new URL("https://www.googleapis.com/oauth2/v2/userinfo?access_token=" + accessToken);
+        String respuesta = doGet(userInfoEndpoint);
+        System.out.println("Respuesta: " + respuesta);
+        Map<String, String> map2 = new Gson().fromJson(respuesta, HashMap.class);
+
+        GoogleUser googleUser = new GoogleUser();
+        googleUser.setMail(map2.get("email"));
+        googleUser.setToken(accessToken);
+        googleUserRepo.save(googleUser);
+        return map2.get("email"); // Cambiar a la propiedad correcta si es diferente
     }
 
     private String doGet(URL url) throws IOException {
         CloseableHttpClient httpClient = HttpClients.createDefault();
         HttpGet get = new HttpGet(url.toString());
         CloseableHttpResponse response = httpClient.execute(get);
-        if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK){
+        if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
             return EntityUtils.toString(response.getEntity());
         }
-        throw new RuntimeException("Error in response GET");
+        String errorMessage = EntityUtils.toString(response.getEntity());
+        throw new RuntimeException("Error in response GET: " + response.getStatusLine().getStatusCode() + " " + errorMessage);
     }
 
     private String doPost(URL uri, Map<String, String> parameters) throws Exception {
         CloseableHttpClient httpClient = HttpClients.createDefault();
         HttpPost post = new HttpPost(uri.toString());
         List<NameValuePair> nvps = new ArrayList<>();
-        for (String s: parameters.keySet()){
+        for (String s : parameters.keySet()) {
             nvps.add(new BasicNameValuePair(s, parameters.get(s)));
         }
         post.setEntity(new UrlEncodedFormEntity(nvps));
         CloseableHttpResponse response = httpClient.execute(post);
-        if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK){
+        if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
             return EntityUtils.toString(response.getEntity());
         }
-        throw new RemoteException("Error in response POST");
+        String errorMessage = EntityUtils.toString(response.getEntity());
+        throw new RuntimeException("Error in response POST: " + response.getStatusLine().getStatusCode() + " " + errorMessage);
     }
 
     public List<User> getPlayers(String token) {

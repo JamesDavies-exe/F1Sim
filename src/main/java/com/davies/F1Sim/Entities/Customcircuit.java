@@ -1,21 +1,22 @@
 package com.davies.F1Sim.Entities;
 
-import com.davies.F1Sim.DTO.ClasificationDTO;
 import jakarta.persistence.*;
 
 import java.util.List;
-import java.util.Set;
-
 @Entity
-public class Circuit {
+public class Customcircuit {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long circuitId;
 
     String name;
 
-    @OneToMany(mappedBy = "circuit")
+    @OneToMany(mappedBy = "customcircuit")
     List<Question> questions;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    User user;
 
     public Long getCircuitId() {
         return circuitId;
@@ -39,5 +40,13 @@ public class Circuit {
 
     public void setQuestions(List<Question> questions) {
         this.questions = questions;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 }

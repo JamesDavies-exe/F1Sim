@@ -42,7 +42,6 @@ public class TokenService {
 
     public User getUserFromToken(String token) {
         token = token.replace("Bearer: ", "");
-        System.out.println(token);
         String email = JWT.require(Algorithm.HMAC512(tokenSecret.getBytes()))
                 .build()
                 .verify(token)

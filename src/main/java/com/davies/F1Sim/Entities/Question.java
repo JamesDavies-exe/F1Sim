@@ -17,6 +17,10 @@ public class Question {
     @JoinColumn(name = "circuit_id")
     Circuit circuit;
 
+    @ManyToOne
+    @JoinColumn(name = "customcircuit_id")
+    Customcircuit customcircuit;
+
     public Long getQuestionId() {
         return questionId;
     }
