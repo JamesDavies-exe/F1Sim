@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: com.davies.F1Sim.F1SimApplicationTests
+-------------------------------------------------------------------------------
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 21.19 s -- in com.davies.F1Sim.F1SimApplicationTests
