@@ -28,4 +28,14 @@ public class CircuitService {
         });
         return circuitDTOList;
     }
+
+    public Circuit getCircuit(int id) {
+        return circuitRepo.findById(Long.valueOf(id)).get();
+    }
+
+    public void updateCircuit(int id, String editedTitle) {
+        Circuit circuit = circuitRepo.findByCircuitId((long) id);
+        circuit.setName(editedTitle);
+        circuitRepo.save(circuit);
+    }
 }

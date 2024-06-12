@@ -1,22 +1,21 @@
 package com.davies.F1Sim.Services;
 
+import com.davies.F1Sim.DTO.ChangePasswordDTO;
 import com.davies.F1Sim.DTO.LoginDTO;
+import com.davies.F1Sim.DTO.UserDTO;
 import com.davies.F1Sim.Entities.GoogleUser;
 import com.davies.F1Sim.Entities.User;
 import com.davies.F1Sim.Exceptions.UserExistsException;
 import com.davies.F1Sim.Repos.GoogleUserRepo;
 import com.davies.F1Sim.Repos.UserRepo;
-import org.antlr.v4.runtime.Token;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.util.UriBuilder;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import com.google.gson.Gson;
 import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -27,16 +26,11 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-import org.springframework.web.util.UriBuilder;
 
-import java.io.Closeable;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -66,6 +60,7 @@ public class UserService {
         user.setPassword(hashPassword(user.getPassword()));
         // Al crear el usuario no estará online al no haber iniciado sesión todavia
         user.setOnline(false);
+        user.setRole("user");
         userRepo.save(user);
     }
 
@@ -186,5 +181,26 @@ public class UserService {
         List<User> users = userRepo.findAll();
         users.remove(currentUser);
         return users;
+    }
+
+    public UserDTO getUserDTO(String token) throws UserExistsException {
+        User user = tokenService.getUserFromToken(token);
+        System.out.println(user.getName());
+        return new UserDTO(user.getName(), user.getRole());
+    }
+
+    public String changePassword(User user, ChangePasswordDTO passwordDTO) {
+        String msg = "";
+        System.out.println(user.getPassword());
+        System.out.println(hashPassword(passwordDTO.currentPassword()));
+        if(user.getPassword() == hashPassword(passwordDTO.currentPassword()) && passwordDTO.newPassword().length() > 6){
+            user.setPassword(hashPassword(passwordDTO.newPassword()));
+            userRepo.save(user);
+            msg = "La contraseña se ha cambiado";
+        }else {
+            if (user.getPassword() != hashPassword(passwordDTO.currentPassword())) msg = "Error: la contraseña no es correcta";
+            if (passwordDTO.newPassword().length() < 6) msg = "Error: la contraseña deber tener al menos 6 caracteres";
+        }
+        return msg;
     }
 }

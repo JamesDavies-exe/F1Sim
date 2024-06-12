@@ -1,9 +1,8 @@
 package com.davies.F1Sim.Entities;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
+
+import java.util.Set;
 
 @Entity
 public class User {
@@ -14,7 +13,11 @@ public class User {
     String name;
     String password;
     boolean isOnline;
+    String role;
 
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    Set<Score> scores;
     public Long getId() {
         return id;
     }
@@ -52,5 +55,13 @@ public class User {
     }
     public void setOnline(boolean online) {
         isOnline = online;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
     }
 }

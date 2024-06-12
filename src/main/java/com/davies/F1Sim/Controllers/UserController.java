@@ -1,8 +1,11 @@
 package com.davies.F1Sim.Controllers;
 
+import com.davies.F1Sim.DTO.ChangePasswordDTO;
 import com.davies.F1Sim.DTO.LoginDTO;
+import com.davies.F1Sim.DTO.UserDTO;
 import com.davies.F1Sim.Entities.User;
 import com.davies.F1Sim.Exceptions.UserExistsException;
+import com.davies.F1Sim.Services.TokenService;
 import com.davies.F1Sim.Services.UserService;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +25,8 @@ import java.util.Map;
 public class UserController {
     @Autowired
     UserService userService;
+    @Autowired
+    TokenService tokenService;
     @PostMapping("/register")
     @CrossOrigin
     public void register(@RequestBody User newUser, HttpServletResponse response) {
@@ -47,11 +52,10 @@ public class UserController {
         return map;
     }
 
-    @GetMapping("/user")
+    @GetMapping("/getUser")
     @CrossOrigin
-    public String user(@RequestHeader("Authorization") String token){
-        System.out.println(token);
-        return "done";
+    public UserDTO user(@RequestHeader("Authorization") String token) throws UserExistsException {
+        return userService.getUserDTO(token);
     }
 
     @GetMapping("/logingoogle")
@@ -76,5 +80,17 @@ public class UserController {
     @CrossOrigin
     public List<User> getPlayers(@RequestHeader("Authorization") String token){
         return userService.getPlayers(token);
+    }
+
+    @PutMapping("/changePassword")
+    @CrossOrigin
+    public String changePassword(@RequestHeader("Authorization") String token, @RequestBody ChangePasswordDTO passwordDTO){
+        System.out.println(passwordDTO.toString());
+        User user = tokenService.getUserFromToken(token);
+        String msg = "";
+        if (user != null){
+            msg = userService.changePassword(user, passwordDTO);
+        }
+        return msg;
     }
 }

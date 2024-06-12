@@ -17,6 +17,9 @@ public class Circuit {
     @OneToMany(mappedBy = "circuit")
     List<Question> questions;
 
+    @OneToMany(mappedBy = "circuit", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Score> scores;
+
     public Long getCircuitId() {
         return circuitId;
     }
