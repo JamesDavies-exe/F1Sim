@@ -1,3 +1,4 @@
+C:\Users\james\Desktop\DWES\F1Sim\src\main\java\com\davies\F1Sim\DTO\UserDTO.java
 C:\Users\james\Desktop\DWES\F1Sim\src\main\java\com\davies\F1Sim\Repos\QuestionRepo.java
 C:\Users\james\Desktop\DWES\F1Sim\src\main\java\com\davies\F1Sim\Controllers\QuizController.java
 C:\Users\james\Desktop\DWES\F1Sim\src\main\java\com\davies\F1Sim\Services\CircuitService.java
@@ -5,6 +6,7 @@ C:\Users\james\Desktop\DWES\F1Sim\src\main\java\com\davies\F1Sim\Repos\CircuitRe
 C:\Users\james\Desktop\DWES\F1Sim\src\main\java\com\davies\F1Sim\Services\UserService.java
 C:\Users\james\Desktop\DWES\F1Sim\src\main\java\com\davies\F1Sim\Services\ScoreService.java
 C:\Users\james\Desktop\DWES\F1Sim\src\main\java\com\davies\F1Sim\Entities\Question.java
+C:\Users\james\Desktop\DWES\F1Sim\src\main\java\com\davies\F1Sim\DTO\ChangePasswordDTO.java
 C:\Users\james\Desktop\DWES\F1Sim\src\main\java\com\davies\F1Sim\Repos\GoogleUserRepo.java
 C:\Users\james\Desktop\DWES\F1Sim\src\main\java\com\davies\F1Sim\Entities\GoogleUser.java
 C:\Users\james\Desktop\DWES\F1Sim\src\main\java\com\davies\F1Sim\DTO\CircuitDTO.java
