@@ -146,7 +146,7 @@ public class UserService {
         googleUser.setMail(map2.get("email"));
         googleUser.setToken(accessToken);
         googleUserRepo.save(googleUser);
-        return map2.get("email"); // Cambiar a la propiedad correcta si es diferente
+        return accessToken; // Cambiar a la propiedad correcta si es diferente
     }
 
     private String doGet(URL url) throws IOException {

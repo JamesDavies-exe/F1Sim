@@ -68,11 +68,11 @@ public class UserController {
     @CrossOrigin(origins = "http://localhost:5173")
     public ResponseEntity<Void> oauthCallback(@RequestParam String code) throws Exception {
         // Procesar el código de autorización y obtener el correo del usuario
-        String userEmail = userService.getGoogleUserEmail(code);
+        String token = userService.getGoogleUserEmail(code);
 
         // Redirigir a la URL del cliente
         HttpHeaders headers = new HttpHeaders();
-        headers.setLocation(URI.create("http://localhost:5173/login"));
+        headers.setLocation(URI.create("http://localhost:5173/login?token=" + token));
         return new ResponseEntity<>(headers, HttpStatus.SEE_OTHER);
     }
 
