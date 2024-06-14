@@ -18,7 +18,7 @@ public class Circuit {
     List<Question> questions;
 
     @OneToMany(mappedBy = "circuit", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<Score> scores;
+    List<Score> scores;
 
     public Long getCircuitId() {
         return circuitId;
@@ -42,5 +42,13 @@ public class Circuit {
 
     public void setQuestions(List<Question> questions) {
         this.questions = questions;
+    }
+
+    public List<Score> getScores() {
+        return scores;
+    }
+
+    public void setScores(List<Score> scores) {
+        this.scores = scores;
     }
 }

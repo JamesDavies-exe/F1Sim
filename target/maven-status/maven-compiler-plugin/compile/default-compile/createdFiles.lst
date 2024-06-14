@@ -4,7 +4,6 @@ com\davies\F1Sim\Entities\Circuit.class
 com\davies\F1Sim\Repos\QuestionRepo.class
 com\davies\F1Sim\Services\QuestionService.class
 com\davies\F1Sim\Repos\ScoreRepo.class
-com\davies\F1Sim\Repos\GoogleUserRepo.class
 com\davies\F1Sim\Entities\Question.class
 com\davies\F1Sim\Controllers\UserController.class
 com\davies\F1Sim\DTO\LoginDTO.class
@@ -16,7 +15,6 @@ com\davies\F1Sim\Services\ScoreService.class
 com\davies\F1Sim\Controllers\QuizController.class
 com\davies\F1Sim\Entities\Customcircuit.class
 com\davies\F1Sim\Entities\User.class
-com\davies\F1Sim\Entities\GoogleUser.class
 com\davies\F1Sim\Repos\UserRepo.class
 com\davies\F1Sim\DTO\CircuitDTO.class
 com\davies\F1Sim\DTO\ClasificationDTO.class

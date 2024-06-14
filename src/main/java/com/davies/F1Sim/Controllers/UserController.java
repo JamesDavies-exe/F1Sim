@@ -58,23 +58,6 @@ public class UserController {
         return userService.getUserDTO(token);
     }
 
-    @GetMapping("/logingoogle")
-    @CrossOrigin
-    public String logingoogle() throws URISyntaxException, MalformedURLException {
-        return userService.getGoogleRedirection();
-    }
-
-    @GetMapping("/oauth2/callback")
-    @CrossOrigin(origins = "http://localhost:5173")
-    public ResponseEntity<Void> oauthCallback(@RequestParam String code) throws Exception {
-        // Procesar el código de autorización y obtener el correo del usuario
-        String token = userService.getGoogleUserEmail(code);
-
-        // Redirigir a la URL del cliente
-        HttpHeaders headers = new HttpHeaders();
-        headers.setLocation(URI.create("http://localhost:5173/login?token=" + token));
-        return new ResponseEntity<>(headers, HttpStatus.SEE_OTHER);
-    }
 
     @GetMapping("/getPlayers")
     @CrossOrigin
@@ -86,11 +69,8 @@ public class UserController {
     @CrossOrigin
     public String changePassword(@RequestHeader("Authorization") String token, @RequestBody ChangePasswordDTO passwordDTO){
         System.out.println(passwordDTO.toString());
-        User user = tokenService.getUserFromToken(token);
         String msg = "";
-        if (user != null){
-            msg = userService.changePassword(user, passwordDTO);
-        }
+        msg = userService.changePassword(passwordDTO);
         return msg;
     }
 }

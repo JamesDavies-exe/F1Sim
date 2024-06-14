@@ -2,8 +2,11 @@ package com.davies.F1Sim.Services;
 
 import com.davies.F1Sim.DTO.CircuitDTO;
 import com.davies.F1Sim.Entities.Circuit;
+import com.davies.F1Sim.Entities.Question;
+import com.davies.F1Sim.Entities.Score;
 import com.davies.F1Sim.Entities.User;
 import com.davies.F1Sim.Repos.CircuitRepo;
+import com.davies.F1Sim.Repos.QuestionRepo;
 import com.davies.F1Sim.Repos.ScoreRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,6 +21,8 @@ public class CircuitService {
     CircuitRepo circuitRepo;
     @Autowired
     ScoreRepo scoreRepo;
+    @Autowired
+    QuestionRepo questionRepo;
     public List<CircuitDTO> getAllCircuits(User user) {
         List<Circuit> circuits = circuitRepo.findAll();
         List<CircuitDTO> circuitDTOList = new ArrayList<>();
@@ -37,5 +42,22 @@ public class CircuitService {
         Circuit circuit = circuitRepo.findByCircuitId((long) id);
         circuit.setName(editedTitle);
         circuitRepo.save(circuit);
+    }
+
+    public void deleteCircuitById(Long id) {
+        Circuit circuit = circuitRepo.findByCircuitId(id);
+        if (circuit == null){
+            throw new RuntimeException("Este circuito no existe");
+        }
+        List<Question> questions = circuit.getQuestions();
+        List<Score> scores = circuit.getScores();
+
+        scores.forEach(score -> {
+            scoreRepo.delete(score);
+        });
+        questions.forEach(question -> {
+            questionRepo.delete(question);
+        });
+        circuitRepo.delete(circuit);
     }
 }

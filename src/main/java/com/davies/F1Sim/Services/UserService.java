@@ -3,10 +3,8 @@ package com.davies.F1Sim.Services;
 import com.davies.F1Sim.DTO.ChangePasswordDTO;
 import com.davies.F1Sim.DTO.LoginDTO;
 import com.davies.F1Sim.DTO.UserDTO;
-import com.davies.F1Sim.Entities.GoogleUser;
 import com.davies.F1Sim.Entities.User;
 import com.davies.F1Sim.Exceptions.UserExistsException;
-import com.davies.F1Sim.Repos.GoogleUserRepo;
 import com.davies.F1Sim.Repos.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -31,17 +29,13 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class UserService {
     @Autowired
     UserRepo userRepo;
-    @Autowired
-    GoogleUserRepo googleUserRepo;
+
     @Autowired
     TokenService tokenService;
     @Value("${client-id}")
@@ -100,82 +94,6 @@ public class UserService {
         }
     }
 
-    public String getGoogleRedirection() throws URISyntaxException, MalformedURLException {
-        String uri = "https://accounts.google.com/o/oauth2/v2/auth";
-        URIBuilder u = new URIBuilder(uri);
-        u.addParameter("client_id", clientId);
-        u.addParameter("redirect_uri", redirectUri);
-        u.addParameter("scope", "https://www.googleapis.com/auth/userinfo.email");
-        u.addParameter("access_type", "offline");
-        u.addParameter("state", "state_parameter_passthrough_value");
-        u.addParameter("response_type", "code");
-        u.addParameter("prompt", "select_account");
-        System.out.println(u.build().toURL().toString());
-        return u.build().toURL().toString();
-    }
-
-    @Value("${client-secret}")
-    String clientSecret;
-
-    public String getGoogleUserEmail(String code) throws Exception {
-        URL uri = new URL("https://oauth2.googleapis.com/token");
-        Map<String, String> parameters = new HashMap<>();
-
-        System.out.println("Code: " + code);
-
-        parameters.put("client_id", clientId);
-        parameters.put("redirect_uri", redirectUri);
-        parameters.put("code", code);
-        parameters.put("client_secret", clientSecret);
-        parameters.put("grant_type", "authorization_code");
-
-        String resultado = doPost(uri, parameters);
-        System.out.println("Resultado: " + resultado);
-        Map<String, String> map = new Gson().fromJson(resultado, HashMap.class);
-        String accessToken = map.get("access_token");
-
-        System.out.println("Token: " + accessToken);
-
-        // Reemplazar con el endpoint correcto
-        URL userInfoEndpoint = new URL("https://www.googleapis.com/oauth2/v2/userinfo?access_token=" + accessToken);
-        String respuesta = doGet(userInfoEndpoint);
-        System.out.println("Respuesta: " + respuesta);
-        Map<String, String> map2 = new Gson().fromJson(respuesta, HashMap.class);
-
-        GoogleUser googleUser = new GoogleUser();
-        googleUser.setMail(map2.get("email"));
-        googleUser.setToken(accessToken);
-        googleUserRepo.save(googleUser);
-        return accessToken; // Cambiar a la propiedad correcta si es diferente
-    }
-
-    private String doGet(URL url) throws IOException {
-        CloseableHttpClient httpClient = HttpClients.createDefault();
-        HttpGet get = new HttpGet(url.toString());
-        CloseableHttpResponse response = httpClient.execute(get);
-        if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-            return EntityUtils.toString(response.getEntity());
-        }
-        String errorMessage = EntityUtils.toString(response.getEntity());
-        throw new RuntimeException("Error in response GET: " + response.getStatusLine().getStatusCode() + " " + errorMessage);
-    }
-
-    private String doPost(URL uri, Map<String, String> parameters) throws Exception {
-        CloseableHttpClient httpClient = HttpClients.createDefault();
-        HttpPost post = new HttpPost(uri.toString());
-        List<NameValuePair> nvps = new ArrayList<>();
-        for (String s : parameters.keySet()) {
-            nvps.add(new BasicNameValuePair(s, parameters.get(s)));
-        }
-        post.setEntity(new UrlEncodedFormEntity(nvps));
-        CloseableHttpResponse response = httpClient.execute(post);
-        if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-            return EntityUtils.toString(response.getEntity());
-        }
-        String errorMessage = EntityUtils.toString(response.getEntity());
-        throw new RuntimeException("Error in response POST: " + response.getStatusLine().getStatusCode() + " " + errorMessage);
-    }
-
     public List<User> getPlayers(String token) {
         User currentUser = tokenService.getUserFromToken(token);
         List<User> users = userRepo.findAll();
@@ -189,13 +107,13 @@ public class UserService {
         return new UserDTO(user.getName(), user.getRole());
     }
 
-    public String changePassword(User user, ChangePasswordDTO passwordDTO) {
+    public String changePassword(ChangePasswordDTO passwordDTO) {
         String msg = "";
-        System.out.println(user.getPassword());
-        System.out.println(hashPassword(passwordDTO.currentPassword()));
-        if(user.getPassword() == hashPassword(passwordDTO.currentPassword()) && passwordDTO.newPassword().length() > 6){
+        User user = userRepo.findByPassword(hashPassword(passwordDTO.currentPassword()));
+        if(user != null){
             user.setPassword(hashPassword(passwordDTO.newPassword()));
             userRepo.save(user);
+            System.out.println("YES");
             msg = "La contraseña se ha cambiado";
         }else {
             if (user.getPassword() != hashPassword(passwordDTO.currentPassword())) msg = "Error: la contraseña no es correcta";
