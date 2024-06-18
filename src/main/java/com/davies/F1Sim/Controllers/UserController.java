@@ -67,7 +67,7 @@ public class UserController {
 
     @PutMapping("/changePassword")
     @CrossOrigin
-    public String changePassword(@RequestHeader("Authorization") String token, @RequestBody ChangePasswordDTO passwordDTO){
+    public String changePassword(@RequestHeader("Authorization") String token, @RequestBody ChangePasswordDTO passwordDTO) throws UserExistsException {
         System.out.println(passwordDTO.toString());
         String msg = "";
         msg = userService.changePassword(passwordDTO);

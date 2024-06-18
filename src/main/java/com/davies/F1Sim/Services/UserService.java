@@ -107,17 +107,22 @@ public class UserService {
         return new UserDTO(user.getName(), user.getRole());
     }
 
-    public String changePassword(ChangePasswordDTO passwordDTO) {
+    public String changePassword(ChangePasswordDTO passwordDTO) throws UserExistsException {
         String msg = "";
         User user = userRepo.findByPassword(hashPassword(passwordDTO.currentPassword()));
         if(user != null){
-            user.setPassword(hashPassword(passwordDTO.newPassword()));
-            userRepo.save(user);
-            System.out.println("YES");
-            msg = "La contraseña se ha cambiado";
+            if (user.getPassword() != hashPassword(passwordDTO.currentPassword())){
+                msg = "Error: la contraseña no es correcta";
+            } else if (passwordDTO.newPassword().length() < 6) {
+                msg = "Error: la contraseña deber tener al menos 6 caracteres";
+            }else {
+                user.setPassword(hashPassword(passwordDTO.newPassword()));
+                userRepo.save(user);
+                System.out.println("YES");
+                msg = "La contraseña se ha cambiado";
+            }
         }else {
-            if (user.getPassword() != hashPassword(passwordDTO.currentPassword())) msg = "Error: la contraseña no es correcta";
-            if (passwordDTO.newPassword().length() < 6) msg = "Error: la contraseña deber tener al menos 6 caracteres";
+            throw new UserExistsException("Este usuario no existe");
         }
         return msg;
     }
