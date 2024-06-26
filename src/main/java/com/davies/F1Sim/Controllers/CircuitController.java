@@ -1,6 +1,7 @@
 package com.davies.F1Sim.Controllers;
 
 import com.davies.F1Sim.DTO.CircuitDTO;
+import com.davies.F1Sim.DTO.NewCircuitDTO;
 import com.davies.F1Sim.DTO.ScoreDTO;
 import com.davies.F1Sim.Entities.Circuit;
 import com.davies.F1Sim.Entities.User;
@@ -52,9 +53,9 @@ public class CircuitController {
 
     @PutMapping("/updateCircuit/{circuitId}")
     @CrossOrigin
-    public void updateCircuit(@RequestHeader("Authorization") String token, @RequestBody String editedTitle, @PathVariable("circuitId") int id, HttpServletResponse response){
+    public void updateCircuit(@RequestHeader("Authorization") String token, @RequestBody NewCircuitDTO body, @PathVariable("circuitId") int id, HttpServletResponse response){
         if (tokenService.getUserFromToken(token).getRole().equals("admin")){
-            circuitService.updateCircuit(id, editedTitle);
+            circuitService.updateCircuit(id, body);
         }else {
             response.setStatus(409);
         }
@@ -67,6 +68,12 @@ public class CircuitController {
             response.setStatus(409);
         }
         circuitService.deleteCircuitById(id);
+    }
+
+    @PostMapping("/addCircuit")
+    @CrossOrigin
+    public void addCircuit(@RequestHeader("Authorization") String token, @RequestBody NewCircuitDTO body){
+            circuitService.addCircuit(body);
     }
 
 

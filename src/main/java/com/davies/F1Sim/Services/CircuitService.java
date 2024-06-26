@@ -1,6 +1,7 @@
 package com.davies.F1Sim.Services;
 
 import com.davies.F1Sim.DTO.CircuitDTO;
+import com.davies.F1Sim.DTO.NewCircuitDTO;
 import com.davies.F1Sim.Entities.Circuit;
 import com.davies.F1Sim.Entities.Question;
 import com.davies.F1Sim.Entities.Score;
@@ -38,9 +39,10 @@ public class CircuitService {
         return circuitRepo.findById(Long.valueOf(id)).get();
     }
 
-    public void updateCircuit(int id, String editedTitle) {
+    public void updateCircuit(int id, NewCircuitDTO newInfo) {
         Circuit circuit = circuitRepo.findByCircuitId((long) id);
-        circuit.setName(editedTitle);
+        circuit.setName(newInfo.title());
+        circuit.setQuestions(newInfo.questions());
         circuitRepo.save(circuit);
     }
 
@@ -59,5 +61,15 @@ public class CircuitService {
             questionRepo.delete(question);
         });
         circuitRepo.delete(circuit);
+    }
+
+    public void addCircuit(NewCircuitDTO body) {
+        Circuit newCircuit = new Circuit();
+        newCircuit.setName(body.title());
+        Circuit addedCircuit = circuitRepo.save(newCircuit);
+        body.questions().forEach(question -> {
+            question.setCircuit(addedCircuit);
+            questionRepo.save(question);
+        });
     }
 }
